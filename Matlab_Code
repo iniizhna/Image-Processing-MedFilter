@@ -1,0 +1,164 @@
+classdef imagemedfilter < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                matlab.ui.Figure
+        AppByIsnainiDjahaLabel  matlab.ui.control.Label
+        ImageProcessingwithMedianFilterLabel  matlab.ui.control.Label
+        ResizeButton            matlab.ui.control.Button
+        filterButton            matlab.ui.control.Button
+        AddnoiseButton          matlab.ui.control.Button
+        LoadImageButton         matlab.ui.control.Button
+        UIAxes4                 matlab.ui.control.UIAxes
+        UIAxes3                 matlab.ui.control.UIAxes
+        UIAxes2                 matlab.ui.control.UIAxes
+        UIAxes                  matlab.ui.control.UIAxes
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: LoadImageButton
+        function LoadImageButtonPushed(app, event)
+            global a;
+            [filename, pathname] = uigetfile('*.*', 'Pick an Image');
+            filename=strcat(pathname,filename);
+            a=imread(filename);
+            imshow(a,'Parent',app.UIAxes);
+        end
+
+        % Button pushed function: AddnoiseButton
+        function AddnoiseButtonPushed(app, event)
+            global a;
+            global J;
+            J=a;
+            J =imnoise(J,'salt & pepper', 0.4);
+            imshow(J,'Parent',app.UIAxes2);
+        end
+
+        % Button pushed function: filterButton
+        function filterButtonPushed(app, event)
+            global J; 
+            p=medfilt3(J,[5,5,3]);
+            imshow(p,'Parent',app.UIAxes3);
+        end
+
+        % Button pushed function: ResizeButton
+        function ResizeButtonPushed(app, event)
+            global a;
+         
+            q =imresize(a,0.5,'nearest');
+            imshow(q,'Parent',app.UIAxes4);
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 679 630];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.UIFigure);
+            title(app.UIAxes, 'Original')
+            app.UIAxes.XTick = [];
+            app.UIAxes.YTick = [];
+            app.UIAxes.ZTick = [];
+            app.UIAxes.Position = [22 362 307 214];
+
+            % Create UIAxes2
+            app.UIAxes2 = uiaxes(app.UIFigure);
+            title(app.UIAxes2, 'Noise image')
+            app.UIAxes2.XTick = [];
+            app.UIAxes2.YTick = [];
+            app.UIAxes2.ZTick = [];
+            app.UIAxes2.Position = [345 362 312 214];
+
+            % Create UIAxes3
+            app.UIAxes3 = uiaxes(app.UIFigure);
+            title(app.UIAxes3, 'Image after remove noise')
+            app.UIAxes3.XTick = [];
+            app.UIAxes3.YTick = [];
+            app.UIAxes3.ZTick = [];
+            app.UIAxes3.Position = [345 101 312 225];
+
+            % Create UIAxes4
+            app.UIAxes4 = uiaxes(app.UIFigure);
+            title(app.UIAxes4, 'Resize')
+            app.UIAxes4.XTick = [];
+            app.UIAxes4.YTick = [];
+            app.UIAxes4.ZTick = [];
+            app.UIAxes4.Position = [13 101 316 225];
+
+            % Create LoadImageButton
+            app.LoadImageButton = uibutton(app.UIFigure, 'push');
+            app.LoadImageButton.ButtonPushedFcn = createCallbackFcn(app, @LoadImageButtonPushed, true);
+            app.LoadImageButton.Position = [130 340 100 23];
+            app.LoadImageButton.Text = 'Load Image';
+
+            % Create AddnoiseButton
+            app.AddnoiseButton = uibutton(app.UIFigure, 'push');
+            app.AddnoiseButton.ButtonPushedFcn = createCallbackFcn(app, @AddnoiseButtonPushed, true);
+            app.AddnoiseButton.Position = [446 340 100 23];
+            app.AddnoiseButton.Text = 'Add noise';
+
+            % Create filterButton
+            app.filterButton = uibutton(app.UIFigure, 'push');
+            app.filterButton.ButtonPushedFcn = createCallbackFcn(app, @filterButtonPushed, true);
+            app.filterButton.Position = [452 66 100 23];
+            app.filterButton.Text = 'filter ';
+
+            % Create ResizeButton
+            app.ResizeButton = uibutton(app.UIFigure, 'push');
+            app.ResizeButton.ButtonPushedFcn = createCallbackFcn(app, @ResizeButtonPushed, true);
+            app.ResizeButton.Position = [122 66 100 23];
+            app.ResizeButton.Text = 'Resize';
+
+            % Create ImageProcessingwithMedianFilterLabel
+            app.ImageProcessingwithMedianFilterLabel = uilabel(app.UIFigure);
+            app.ImageProcessingwithMedianFilterLabel.FontName = 'Arial';
+            app.ImageProcessingwithMedianFilterLabel.FontSize = 14;
+            app.ImageProcessingwithMedianFilterLabel.FontWeight = 'bold';
+            app.ImageProcessingwithMedianFilterLabel.Position = [230 591 249 22];
+            app.ImageProcessingwithMedianFilterLabel.Text = 'Image Processing with Median Filter';
+
+            % Create AppByIsnainiDjahaLabel
+            app.AppByIsnainiDjahaLabel = uilabel(app.UIFigure);
+            app.AppByIsnainiDjahaLabel.Position = [23 14 116 22];
+            app.AppByIsnainiDjahaLabel.Text = 'App By Isnaini Djaha';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = imagemedfilter
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
